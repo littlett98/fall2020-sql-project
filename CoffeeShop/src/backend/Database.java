@@ -16,5 +16,22 @@ public class Database {
 		// returns null if connection wasn't made
 		return null;
 	}
+
+	public String getCustIDByEmail(String email) {
+		//for now
+		return "test";
+	}
+	
+	/*public String getSalt() {
+		
+	}
+	
+	public byte[] hash(String password, String salt) {
+		
+	}*/
+	
+	public Customer getCustomer(String username) {
+		
+	}
 	
 }

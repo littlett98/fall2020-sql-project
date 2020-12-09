@@ -10,14 +10,18 @@ public class Customer {
 	private String email;
 	private String referral_id;
 	
-	public Customer(String id, String user, String pw, String add, String pNum, String email, String ref_id) {
-		this.id = id;
+	public Customer(String user, String pw, String add, String pNum, String email, String ref_id) {
+		this.id = generateID();
 		this.username = user;
 		this.password = pw;
 		this.address = add;
 		this.phone = pNum;
 		this.email = email;
 		this.referral_id = ref_id;
+	}
+	
+	public String generateID() {
+		return "c001";
 	}
 	
 	public String getID() {
