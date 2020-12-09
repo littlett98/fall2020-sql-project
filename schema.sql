@@ -1,7 +1,3 @@
--- Created by Vertabelo (http://vertabelo.com)
--- Last modification date: 2020-12-04 18:00:55.176
-
--- tables
 -- Table: Customers
 CREATE TABLE Customers (
     customer_id varchar2(10)  NOT NULL,
@@ -88,6 +84,37 @@ ALTER TABLE Recipes ADD CONSTRAINT Recipes_Ingredients
 ALTER TABLE Products ADD CONSTRAINT Recipes_Products
     FOREIGN KEY (recipe_id)
     REFERENCES Recipes (recipe_id);
+    
+/* Drops
+-- foreign keys
+ALTER TABLE Customers
+    DROP CONSTRAINT Customers_Customers;
 
--- End of file.
+ALTER TABLE Order_Items
+    DROP CONSTRAINT Order_Items_Orders;
 
+ALTER TABLE Order_Items
+    DROP CONSTRAINT Order_Items_Products;
+
+ALTER TABLE Orders
+    DROP CONSTRAINT Orders_Customers;
+
+ALTER TABLE Recipes
+    DROP CONSTRAINT Recipes_Ingredients;
+
+ALTER TABLE Products
+    DROP CONSTRAINT Recipes_Products;
+
+-- tables
+DROP TABLE Customers;
+
+DROP TABLE Ingredients;
+
+DROP TABLE Order_Items;
+
+DROP TABLE Orders;
+
+DROP TABLE Products;
+
+DROP TABLE Recipes;
+*/
