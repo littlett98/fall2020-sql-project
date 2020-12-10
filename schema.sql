@@ -98,7 +98,7 @@ ALTER TABLE Products ADD CONSTRAINT Recipes_Products
     FOREIGN KEY (recipe_id)
     REFERENCES Recipes (recipe_id);
     
-/* Drops*/
+/* Drops
 -- foreign keys
 ALTER TABLE Customers
     DROP CONSTRAINT Customers_Customers;
