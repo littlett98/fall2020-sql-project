@@ -11,30 +11,27 @@ public class Customer {
 	private Database coffeeShop = new Database();
 	private String id;
 	private String username;
-	private String password;
 	private String address;
 	private String phone;
 	private String email;
 	private String referral_id;
 	
-	public Customer(String user, String pw, String add, String pNum, String email, String ref_id) {
+	public Customer(String user, String add, String pNum, String email, String ref_id) {
 		try {
 			this.id = generateID();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		this.username = user;
-		this.password = pw;
 		this.address = add;
 		this.phone = pNum;
 		this.email = email;
 		this.referral_id = ref_id;
 	}
 	
-	public Customer(String id, String user, String pw, String add, String pNum, String email, String ref_id) {
+	public Customer(String id, String user, String add, String pNum, String email, String ref_id) {
 		this.id = id;
 		this.username = user;
-		this.password = pw;
 		this.address = add;
 		this.phone = pNum;
 		this.email = email;
@@ -48,8 +45,8 @@ public class Customer {
 			conn.setAutoCommit(false);
 			String custCount = ("SELECT COUNT(CUSTOMER_ID) FROM CUSTOMERS");
 			PreparedStatement getCustCount = conn.prepareStatement(custCount);
-			//getCustCount.executeUpdate();
 			ResultSet rs = getCustCount.executeQuery();
+			conn.commit();
 			while(rs.next()) {
 				count = rs.getString(1);
 			}
@@ -79,10 +76,6 @@ public class Customer {
 	
 	public String getUsername() {
 		return this.username;
-	}
-	
-	public String getPassword() {
-		return this.password;
 	}
 	
 	public String getAddress() {
