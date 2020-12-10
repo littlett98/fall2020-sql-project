@@ -14,6 +14,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
+import tables.Customer;
+
 public class DatabaseSecurity {
 	
 	private static SecureRandom random = new SecureRandom();
@@ -28,12 +30,11 @@ public class DatabaseSecurity {
 			 	String salt = getSalt();
 			 	byte[] hash = hash(pword, salt);
 				conn.setAutoCommit(false);
-				String addUser = ("INSERT INTO USERPASS VALUES(?,?,?,?)");
+				String addUser = ("{call newUser (?,?,?)}");
 				PreparedStatement insertUser = conn.prepareStatement(addUser);
 				insertUser.setString(1, uname);
-				insertUser.setString(2, pword);
-				insertUser.setString(3, salt);
-				insertUser.setBytes(4, hash);
+				insertUser.setString(2, salt);
+				insertUser.setBytes(3, hash);
 				insertUser.executeUpdate();
 				conn.commit();
 				System.out.println("User added succesfully");
@@ -46,7 +47,7 @@ public class DatabaseSecurity {
 	
 	
 	//Prompts the user to input their login info, returns true if they are a valid user, false otherwise
-	public String login() throws SQLException {
+	public Customer login() throws SQLException {
 	Scanner reader = new Scanner(System.in);  
 	System.out.println("Enter a username ");
 	String uname = reader.nextLine();
@@ -55,6 +56,7 @@ public class DatabaseSecurity {
 	reader.close();
 		 
 	Connection conn = coffeeShop.getConnection();
+	Customer c = null;
 	try {
 		String salt = "";
 		byte[] hash = null;
@@ -70,15 +72,15 @@ public class DatabaseSecurity {
 		byte[] compareHash = hash(pword, salt);
 		if (Arrays.equals(hash, compareHash)) {
 			System.out.println("Login as " + uname + " successful!");
-			return uname;
+			c = coffeeShop.getCustomer(uname);
 		}
 		getUserPass.close();
 		}
 		catch(SQLException e){
+			System.out.println("Login failed!");
 			conn.rollback();
 		}
-		System.out.println("Login failed!");
-		return null;
+		return c;
 	}
 		
 	
