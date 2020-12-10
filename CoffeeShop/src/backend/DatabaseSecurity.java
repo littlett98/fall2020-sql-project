@@ -53,7 +53,6 @@ public class DatabaseSecurity {
 	String uname = reader.nextLine();
 	System.out.println("Enter a password ");
 	String pword = reader.nextLine();
-	reader.close();
 		 
 	Connection conn = coffeeShop.getConnection();
 	Customer c = null;

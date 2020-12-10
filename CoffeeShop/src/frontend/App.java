@@ -1,5 +1,7 @@
 package frontend;
 
+import java.io.FilterInputStream;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Scanner;
 
@@ -53,7 +55,8 @@ public class App {
 			e.printStackTrace();
 		}
 		System.out.println("What is your address?");
-		String address = input.next();
+		Scanner in = new Scanner(System.in);
+		String address = in.nextLine();
 		System.out.println("What is your phone number?");
 		String phone = input.next();
 		System.out.println("What is your email address?");
@@ -103,9 +106,15 @@ public class App {
 	
 	public static void viewProductsLoggedIn() throws SQLException {
 		boolean shopping = true;
-		Scanner reader = new Scanner(System.in);
+		Scanner reader;
 		System.out.println("Welcome " + c.getUsername() + "!");
 		while(shopping) {
+			reader = new Scanner(new FilterInputStream(System.in) {
+			    @Override
+			    public void close() throws IOException {
+			        // do nothing here ! 
+			    }
+			});
 			viewProducts();
 			System.out.println("Which products would you like to add to your cart?");
 			String selection = reader.nextLine();
@@ -117,6 +126,7 @@ public class App {
 			addToCart(allSelectionsNum);
 			System.out.println("What would you like to do? 1. Continue shopping 2. Check Out");
 			int next = reader.nextInt();
+			reader.close();
 			if (next == 1) {
 				continue;
 			}
@@ -124,14 +134,13 @@ public class App {
 				shopping = false;
 			}
 		}
-		reader.close();
-		//viewCart();
+		cart.viewCart();
 	}
 	
 	public static void addToCart(int[] allSelections) throws SQLException {
 		Product[] allProducts = coffeeShop.getAllProducts();
 		for (int i = 0; i < allSelections.length; i++) {
-			cart.addProduct(allProducts[allSelections[i]]);
+			cart.addProduct(allProducts[allSelections[i]-1]);
 		}
 	}
 }
