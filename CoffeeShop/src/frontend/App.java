@@ -120,10 +120,14 @@ public class App {
 			String selection = reader.nextLine();
 			String[] allSelections = selection.split(" ");
 			int[] allSelectionsNum = new int[allSelections.length];
+			int[] productQuantity = new int[allSelections.length];
 			for (int i = 0; i < allSelections.length; i++) {
 				allSelectionsNum[i] = Integer.parseInt(allSelections[i]);
+				System.out.println("How many " + coffeeShop.getProduct(allSelectionsNum[i]-1).getName() + "s would you like?");
+				productQuantity[i] = reader.nextInt();
 			}
-			addToCart(allSelectionsNum);
+			addToCart(allSelectionsNum, productQuantity);
+			cart.viewCart();
 			System.out.println("What would you like to do? 1. Continue shopping 2. Check Out");
 			int next = reader.nextInt();
 			reader.close();
@@ -137,10 +141,11 @@ public class App {
 		cart.viewCart();
 	}
 	
-	public static void addToCart(int[] allSelections) throws SQLException {
+	public static void addToCart(int[] allSelections, int[] productQuantity) throws SQLException {
 		Product[] allProducts = coffeeShop.getAllProducts();
 		for (int i = 0; i < allSelections.length; i++) {
-			cart.addProduct(allProducts[allSelections[i]-1]);
+			// minus 1 because the product selections start at 1
+			cart.addProduct(allProducts[allSelections[i]-1], productQuantity[i]);
 		}
 	}
 }

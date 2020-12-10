@@ -112,4 +112,9 @@ public class Database {
 		}
 		return c;
 	}
+	
+	public Product getProduct(int i) throws SQLException {
+		Product[] p = getAllProducts();
+		return p[i];
+	}
 }
