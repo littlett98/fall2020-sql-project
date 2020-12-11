@@ -1,7 +1,9 @@
 package backend;
 
 import java.sql.SQLException;
+import java.util.Scanner;
 
+import frontend.App;
 import tables.Product;
 
 public class Cart {
@@ -53,15 +55,38 @@ public class Cart {
 	public void viewCart() {
 		for (int i = 0; i < products.length; i++) {
 			if (products[i] != null ) {
-				System.out.print(products[i].getName() + " ");
-				System.out.println(quantity[i]);
+				System.out.println("The Products you've selected so far: ");
+				System.out.print(quantity[i] + " ");
+				System.out.println(products[i].getName() + "s");
 			}
 		}
 	}
 	
-	public void checkout() throws SQLException {
+	public void viewCartWithTotal() throws SQLException {
 		viewCart();
 		double total = coffeeShop.getCartTotalCost(products, quantity);
-		System.out.println("$" + total);
+		System.out.println("Total cost so far: $" + total);
+	}
+	
+	public void checkout() throws SQLException {
+		Scanner reader = new Scanner(System.in);
+		System.out.println("The Products you've selected so far: ");
+		for (int i = 0; i < products.length; i++) {
+			if (products[i] != null ) {
+				System.out.println(quantity[i] + " " + products[i].getName() + "s - " + products[i].getRetailPrice() + " each");
+			}
+		}
+		double total = coffeeShop.getCartTotalCost(products, quantity);
+		System.out.println("The total cost for your order is: $" + total);
+		App app = new App();
+		System.out.println("Your current address is: " + app.getCustomer().getAddress());
+		System.out.println("Would you like to change your address? 1. Yes 2. No");
+		int choice = reader.nextInt();
+		if (choice == 1) {
+			
+		}
+		else if (choice == 2) {
+			
+		}
 	}
 }

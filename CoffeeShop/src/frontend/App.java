@@ -127,7 +127,7 @@ public class App {
 				productQuantity[i] = reader.nextInt();
 			}
 			addToCart(allSelectionsNum, productQuantity);
-			cart.viewCart();
+			cart.viewCartWithTotal();
 			System.out.println("What would you like to do? 1. Continue shopping 2. Check Out");
 			int next = reader.nextInt();
 			reader.close();
@@ -147,5 +147,9 @@ public class App {
 			// minus 1 because the product selections start at 1
 			cart.addProduct(allProducts[allSelections[i]-1], productQuantity[i]);
 		}
+	}
+	
+	public Customer getCustomer() {
+		return c;
 	}
 }
