@@ -138,7 +138,7 @@ public class App {
 				shopping = false;
 			}
 		}
-		cart.viewCart();
+		cart.checkout();
 	}
 	
 	public static void addToCart(int[] allSelections, int[] productQuantity) throws SQLException {

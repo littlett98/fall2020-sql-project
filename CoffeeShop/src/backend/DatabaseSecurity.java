@@ -31,7 +31,7 @@ public class DatabaseSecurity {
 			 	byte[] hash = hash(pword, salt);
 				conn.setAutoCommit(false);
 				String addUser = ("{call newUser (?,?,?)}");
-				PreparedStatement insertUser = conn.prepareStatement(addUser);
+				CallableStatement insertUser = conn.prepareCall(addUser);
 				insertUser.setString(1, uname);
 				insertUser.setString(2, salt);
 				insertUser.setBytes(3, hash);

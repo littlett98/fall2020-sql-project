@@ -1,13 +1,18 @@
 package backend;
 
+import java.sql.SQLException;
+
 import tables.Product;
 
 public class Cart {
 	
 	private Product[] products;
 	private int[] quantity;
+	Database coffeeShop;
 	
 	public Cart() {
+		
+		coffeeShop = new Database();
 		products = new Product[10];
 		quantity = new int[10];
 	}
@@ -52,5 +57,11 @@ public class Cart {
 				System.out.println(quantity[i]);
 			}
 		}
+	}
+	
+	public void checkout() throws SQLException {
+		viewCart();
+		double total = coffeeShop.getCartTotalCost(products, quantity);
+		System.out.println("$" + total);
 	}
 }

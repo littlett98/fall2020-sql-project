@@ -2,7 +2,7 @@ CREATE OR REPLACE PROCEDURE addCustomer(vID IN VARCHAR2, vUser VARCHAR2, vAddres
 AS
 BEGIN
   INSERT INTO CUSTOMERS
-  VALUES (vID, vUser, vPassword, vAddress, vPhone, vEmail, vREFID);
+  VALUES (vID, vUser, vAddress, vPhone, vEmail, vREFID);
   EXCEPTION
   WHEN DUP_VAL_ON_INDEX THEN
     dbms_output.put_line('Duplicate Values');
@@ -16,5 +16,23 @@ BEGIN
   EXCEPTION
   WHEN DUP_VAL_ON_INDEX THEN
     dbms_output.put_line('Duplicate Values');
+END;
+
+CREATE OR REPLACE FUNCTION CALCULATECOST(vName IN VARCHAR2, vQTY IN NUMBER, vTotalCost OUT NUMBER) RETURN NUMBER
+AS
+  vCost PRODUCTS.RETAIL_PRICE%TYPE;
+BEGIN
+  SELECT RETAIL_PRICE INTO vCost
+  FROM PRODUCTS
+  WHERE PRODUCT_NAME LIKE vName;
+  vTotalCost := vCost * vQTY;
+  dbms_output.put_line(vTotalCost);
+  RETURN vTotalCost;
+END;
+
+DECLARE
+  total number;
+BEGIN
+dbms_output.put_line(CALCULATECOST('LATTE', 2, total));
 END;
 

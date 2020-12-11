@@ -32,7 +32,7 @@ public class Database {
 		 try {
 				conn.setAutoCommit(false);
 				String addCustomer = ("{call addCustomer (?,?,?,?,?,?)}");
-				PreparedStatement insertCust = conn.prepareStatement(addCustomer);
+				CallableStatement insertCust = conn.prepareCall(addCustomer);
 				insertCust.setString(1, c.getID());
 				insertCust.setString(2, c.getUsername());
 				insertCust.setString(3, c.getAddress());
@@ -116,5 +116,31 @@ public class Database {
 	public Product getProduct(int i) throws SQLException {
 		Product[] p = getAllProducts();
 		return p[i];
+	}
+	
+	public double getCartTotalCost(Product[] p, int[] quantity) throws SQLException {
+		double total = 0;
+		Connection conn = getConnection();
+		for (int i = 0; i < p.length; i++) {
+			if (p[i] != null) {
+				try {
+					conn.setAutoCommit(false);
+					String costQuery = ("{? = call CALCULATECOST (?, ?, ?)}");
+					CallableStatement getTotalCost = conn.prepareCall(costQuery);
+					getTotalCost.registerOutParameter(1,Types.DOUBLE);
+					getTotalCost.setString(2, p[i].getName());
+					getTotalCost.setInt(3, quantity[i]);
+					getTotalCost.registerOutParameter(4,Types.DOUBLE);
+					getTotalCost.executeUpdate();
+					total += getTotalCost.getDouble(1);
+					getTotalCost.close();
+				}
+				catch(SQLException e){
+					System.out.println(e);
+					conn.rollback();
+				}
+			}
+		}
+		return total;
 	}
 }
