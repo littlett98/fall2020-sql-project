@@ -3,6 +3,7 @@ package frontend;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import backend.*;
@@ -24,24 +25,33 @@ public class App {
 		});
 		boolean loggedIn = false;
 		System.out.println("Welcome to Trevors Coffee Shop!");
-		System.out.println("Would you like to log in or create a new account?");
-		System.out.println("Enter 1 to login");
-		System.out.println("Enter 2 to register");
-		System.out.println("Enter 3 to view our products");
-		int selection = input.nextInt();
-		if (selection == 1) {
-			login();
-			loggedIn = true;
-		}
-		else if (selection == 2) {
-			register();
-			loggedIn = true;
-		}
-		else if (selection == 3) {
-			viewProducts();
-		}
-		else {
-			System.out.println("Invalid input");
+		while (!loggedIn) {
+			try {
+				System.out.println("Would you like to log in, create a new account, or view a list of our products?");
+				System.out.println("Enter 1 to log in");
+				System.out.println("Enter 2 to register");
+				System.out.println("Enter 3 to view our products");
+				int selection = input.nextInt();
+				if (selection == 1) {
+					login();
+					loggedIn = true;
+				}
+				else if (selection == 2) {
+					register();
+					loggedIn = true;
+				}
+				else if (selection == 3) {
+					viewProducts();
+				}
+				else {
+					System.out.println("Invalid input");
+				}
+			}
+			catch (InputMismatchException e) {
+				String bad_input = input.next();
+				System.out.println("Please input a different selection. Please note it should be a number.");
+				continue;
+			}
 		}
 		if (loggedIn) {
 			input.close();
@@ -50,12 +60,23 @@ public class App {
 	}
 	
 	public static void register() {
+		boolean invalid = true;
 		System.out.println("You are on the registration page");
 		DatabaseSecurity userCreation = new DatabaseSecurity();
-		System.out.println("Please enter a username");
-		String username = input.next();
-		System.out.println("Please enter a password");
-		String password = input.next();
+		String username = "";
+		String password = "";
+		while (invalid) {
+			System.out.println("Please enter a username (Must be at least 3 characters long)");
+			username = stringSplitter(input.next());
+			System.out.println("Please enter a password (Must be at least 3 characters long)");
+			password = stringSplitter(input.next());
+			if (password.length() >= 3 && username.length() >= 3) {
+				invalid = false;
+			}
+			else {
+				System.out.println("Invalid inputs, please retry. Make sure to never uses spaces in the username or password!");
+			}
+		}
 		try {
 			userCreation.newUser(username, password);
 		} catch (SQLException e) {
@@ -157,5 +178,11 @@ public class App {
 	
 	public Customer getCustomer() {
 		return c;
+	}
+	
+	public static String stringSplitter(String word) {
+		String[] firstWord = word.split(" ");
+		input.nextLine();
+		return firstWord[0];
 	}
 }

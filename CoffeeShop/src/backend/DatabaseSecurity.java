@@ -32,8 +32,9 @@ public class DatabaseSecurity {
 			 	String salt = getSalt();
 			 	byte[] hash = hash(pword, salt);
 				conn.setAutoCommit(false);
-				String addUser = ("{call newUser (?,?,?)}");
-				CallableStatement insertUser = conn.prepareCall(addUser);
+				String addUser = ("insert into userpass values(?, ?, ?)");
+				//String addUser = ("{call newUser (?,?,?)}");
+				PreparedStatement insertUser = conn.prepareStatement(addUser);
 				insertUser.setString(1, uname);
 				insertUser.setString(2, salt);
 				insertUser.setBytes(3, hash);
@@ -47,47 +48,58 @@ public class DatabaseSecurity {
 			}
 	 }
 	
-	
 	//Prompts the user to input their login info, returns true if they are a valid user, false otherwise
 	public Customer login() throws SQLException {
-	Scanner reader = new Scanner(new FilterInputStream(System.in) {
-	    @Override
-	    public void close() throws IOException {
-	        // do nothing here ! 
-	    }
-	});  
-	System.out.println("Enter a username ");
-	String uname = reader.next();
-	System.out.println("Enter a password ");
-	String pword = reader.next();
-		 
-	Connection conn = coffeeShop.getConnection();
-	Customer c = null;
-	try {
-		String salt = "";
-		byte[] hash = null;
-		conn.setAutoCommit(false);
-		String getUser = "SELECT salt, hash FROM USERPASS WHERE username = \'" + uname +"\'";
-		PreparedStatement getUserPass = conn.prepareStatement(getUser);
-		//getUserPass.executeUpdate();
-		ResultSet rs = getUserPass.executeQuery();
-		while(rs.next()) {
-			 salt = rs.getString(1);
-			 hash = rs.getBytes(2);
+		boolean invalid = true;
+		Scanner reader = new Scanner(new FilterInputStream(System.in) {
+		    @Override
+		    public void close() throws IOException {
+		        // do nothing here ! 
+		    }
+		});
+		Connection conn = coffeeShop.getConnection();
+		Customer c = null;
+		while (invalid) {
+			System.out.println("Enter your username ");
+			String uname = reader.next();
+			System.out.println("Enter your password ");
+			String pword = reader.next();
+			try {
+				String salt = "";
+				byte[] hash = null;
+				conn.setAutoCommit(false);
+				String getUser = "SELECT salt, hash FROM USERPASS WHERE username = \'" + uname +"\'";
+				PreparedStatement getUserPass = conn.prepareStatement(getUser);
+				//getUserPass.executeUpdate();
+				ResultSet rs = getUserPass.executeQuery();
+				while(rs.next()) {
+					 salt = rs.getString(1);
+					 hash = rs.getBytes(2);
+				}
+				byte[] compareHash = hash(pword, salt);
+				if (Arrays.equals(hash, compareHash)) {
+					System.out.println("Login as " + uname + " successful!");
+					c = coffeeShop.getCustomer(uname);
+				}
+				getUserPass.close();
+				if (c != null) {
+					invalid = false;
+				}
+				else {
+					System.out.println("Invalid password, please try again!");
+				}
+			}
+			catch(SQLException e) {
+				System.out.println("Login failed! Please try again.");
+				conn.rollback();
+			}
+			catch(IllegalArgumentException e) {
+				System.out.println("Username does not exist, please try again!");
+				conn.rollback();
+			}
 		}
-		byte[] compareHash = hash(pword, salt);
-		if (Arrays.equals(hash, compareHash)) {
-			System.out.println("Login as " + uname + " successful!");
-			c = coffeeShop.getCustomer(uname);
-		}
-		getUserPass.close();
-		}
-		catch(SQLException e){
-			System.out.println("Login failed!");
-			conn.rollback();
-		}
-	reader.close();
-	return c;
+		reader.close();
+		return c;
 	}
 		
 	
