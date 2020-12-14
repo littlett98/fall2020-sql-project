@@ -10,12 +10,18 @@ import tables.*;
 
 public class App {
 	
-	private static Scanner input = new Scanner(System.in);
+	private static Scanner input;
 	private static Customer c;
 	private static Database coffeeShop = new Database();
 	private static Cart cart = new Cart();
 	
 	public static void main(String[] args) throws SQLException {
+		input = new Scanner(new FilterInputStream(System.in) {
+		    @Override
+		    public void close() throws IOException {
+		        // do nothing here ! 
+		    }
+		});
 		boolean loggedIn = false;
 		System.out.println("Welcome to Trevors Coffee Shop!");
 		System.out.println("Would you like to log in or create a new account?");
@@ -38,6 +44,7 @@ public class App {
 			System.out.println("Invalid input");
 		}
 		if (loggedIn) {
+			input.close();
 			viewProductsLoggedIn();
 		}
 	}
@@ -55,8 +62,7 @@ public class App {
 			e.printStackTrace();
 		}
 		System.out.println("What is your address?");
-		Scanner in = new Scanner(System.in);
-		String address = in.nextLine();
+		String address = input.nextLine();
 		System.out.println("What is your phone number?");
 		String phone = input.next();
 		System.out.println("What is your email address?");

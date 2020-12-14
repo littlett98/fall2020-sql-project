@@ -5,6 +5,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.spec.InvalidKeySpecException;
+import java.io.FilterInputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.sql.*;
 import java.util.Arrays;
@@ -48,11 +50,16 @@ public class DatabaseSecurity {
 	
 	//Prompts the user to input their login info, returns true if they are a valid user, false otherwise
 	public Customer login() throws SQLException {
-	Scanner reader = new Scanner(System.in);  
+	Scanner reader = new Scanner(new FilterInputStream(System.in) {
+	    @Override
+	    public void close() throws IOException {
+	        // do nothing here ! 
+	    }
+	});  
 	System.out.println("Enter a username ");
-	String uname = reader.nextLine();
+	String uname = reader.next();
 	System.out.println("Enter a password ");
-	String pword = reader.nextLine();
+	String pword = reader.next();
 		 
 	Connection conn = coffeeShop.getConnection();
 	Customer c = null;
@@ -79,7 +86,8 @@ public class DatabaseSecurity {
 			System.out.println("Login failed!");
 			conn.rollback();
 		}
-		return c;
+	reader.close();
+	return c;
 	}
 		
 	

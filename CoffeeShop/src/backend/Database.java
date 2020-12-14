@@ -48,6 +48,9 @@ public class Database {
 				System.out.println(e);
 				conn.rollback();
 			}
+		 finally {
+				conn.close();
+			}
 	}
 	
 	public Product[] getAllProducts() throws SQLException {
@@ -69,6 +72,9 @@ public class Database {
 		catch(SQLException e){
 			conn.rollback();
 		}
+		finally {
+			conn.close();
+		}
 		return products;
 	}
 	
@@ -88,6 +94,9 @@ public class Database {
 		}
 		catch(SQLException e){
 			conn.rollback();
+		}
+		finally {
+			conn.close();
 		}
 		return amountProducts;
 	}
@@ -109,6 +118,9 @@ public class Database {
 		}
 		catch(SQLException e){
 			conn.rollback();
+		}
+		finally {
+			conn.close();
 		}
 		return c;
 	}
@@ -142,5 +154,110 @@ public class Database {
 			}
 		}
 		return total;
+	}
+
+	public Customer updateAddress(Customer c, String newAddress) throws SQLException {
+		Connection conn = getConnection();
+		try {
+			conn.setAutoCommit(false);
+			String addCustomer = ("{call updateAddress (?, ?)}");
+			CallableStatement insertCust = conn.prepareCall(addCustomer);
+			insertCust.setString(1, c.getID());
+			insertCust.setString(2, newAddress);
+			insertCust.executeUpdate();
+			conn.commit();
+			c.setAddress(newAddress);
+			System.out.println("Address updated succesfully ");
+			insertCust.close();
+		}
+		catch(SQLException e){
+			System.out.println(e);
+			conn.rollback();
+		}
+		finally {
+			conn.close();
+		}
+		return c;
+	}
+	
+	public void newOrder(String orderID, Customer c) throws SQLException {
+		Connection conn = getConnection();
+		try {
+			conn.setAutoCommit(false);
+			String newOrder = ("{call NEWORDER (?, ?, ?)}");
+			CallableStatement insertOrder = conn.prepareCall(newOrder);
+			insertOrder.setString(1, orderID);
+			insertOrder.setString(2, c.getID());
+			insertOrder.setString(3, c.getAddress());
+			insertOrder.executeUpdate();
+			conn.commit();
+			System.out.println("Order Completed Successfully");
+			insertOrder.close();
+		}
+		catch(SQLException e) {
+			conn.rollback();
+		}
+		finally {
+			conn.close();
+		}
+	}
+	
+	public String generateOrderID() throws SQLException {
+		Connection conn = getConnection();
+		String count = "";
+		try {
+			conn.setAutoCommit(false);
+			String custCount = ("SELECT COUNT(ORDER_ID) FROM ORDERS_COFFEE");
+			PreparedStatement getCustCount = conn.prepareStatement(custCount);
+			ResultSet rs = getCustCount.executeQuery();
+			conn.commit();
+			while(rs.next()) {
+				count = rs.getString(1);
+			}
+			getCustCount.close();
+		}
+		catch(SQLException e){
+			conn.rollback();
+		}
+		finally {
+			conn.close();
+		}
+		int countNum = Integer.parseInt(count) + 1;
+		if (countNum < 10) {
+			return "O000" + countNum;
+		}
+		else if (countNum >= 10 && countNum < 100) {
+			return "O00" + countNum;
+		}
+		else if (countNum >= 100 && countNum < 1000) {
+			return "O0" + countNum;
+		}
+		else {
+			return "O" + countNum;
+		}
+	}
+	
+	public void addOrderItems(String orderID, Product[] products, int[] quantity) throws SQLException {
+		Connection conn = getConnection();
+		for (int i = 0; i < products.length; i++) {
+			if (products[i] != null) {
+				try {
+					System.out.println(i);
+					conn.setAutoCommit(false);
+					String newOrder = ("{call ADDORDERITEM (?, ?, ?)}");
+					CallableStatement insertOrder = conn.prepareCall(newOrder);
+					insertOrder.setString(1, orderID);
+					insertOrder.setString(2, products[i].getID());
+					insertOrder.setInt(3, quantity[i]);
+					insertOrder.executeUpdate();
+					conn.commit();
+					insertOrder.close();
+				}
+				catch(SQLException e) {
+					conn.rollback();
+				}
+			}
+		}
+		System.out.println("Order Items Added Successfully");
 	}
 }

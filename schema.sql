@@ -28,7 +28,7 @@ CREATE TABLE Order_Items (
 ) ;
 
 -- Table: Orders
-CREATE TABLE Orders (
+CREATE TABLE Orders_Coffee (
     order_id varchar2(10)  NOT NULL,
     customer_id varchar2(10)  NOT NULL,
     address varchar2(255)  NOT NULL,
@@ -76,7 +76,7 @@ ALTER TABLE Customers ADD CONSTRAINT Customers_UserPass
 -- Reference: Order_Items_Orders (table: Order_Items)
 ALTER TABLE Order_Items ADD CONSTRAINT Order_Items_Orders
     FOREIGN KEY (order_id)
-    REFERENCES Orders (order_id);
+    REFERENCES Orders_Coffee (order_id);
 
 -- Reference: Order_Items_Products (table: Order_Items)
 ALTER TABLE Order_Items ADD CONSTRAINT Order_Items_Products
@@ -84,7 +84,7 @@ ALTER TABLE Order_Items ADD CONSTRAINT Order_Items_Products
     REFERENCES Products (product_id);
 
 -- Reference: Orders_Customers (table: Orders)
-ALTER TABLE Orders ADD CONSTRAINT Orders_Customers
+ALTER TABLE Orders_coffee ADD CONSTRAINT Orders_Customers
     FOREIGN KEY (customer_id)
     REFERENCES Customers (customer_id);
 

@@ -93,4 +93,8 @@ public class Customer {
 	public String getReferralID() {
 		return this.referral_id;
 	}
+	
+	public void setAddress(String newAddress) {
+		this.address = newAddress;
+	}
 }
