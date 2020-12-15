@@ -43,15 +43,14 @@ CREATE TABLE Products (
     product_name varchar2(255)  NOT NULL,
     retail_price number(6,2)  NOT NULL,
     recipe_id varchar2(10)  NOT NULL,
-    CONSTRAINT Products_pk PRIMARY KEY (product_id)
+    CONSTRAINT Products_pk PRIMARY KEY (product_id,recipe_id)
 ) ;
 
 -- Table: Recipes
 CREATE TABLE Recipes (
     recipe_id varchar2(10)  NOT NULL,
     ingredient_id varchar2(10)  NOT NULL,
-    quantity number(6,2)  NOT NULL,
-    CONSTRAINT Recipes_pk PRIMARY KEY (recipe_id)
+    quantity number(6,2)  NOT NULL
 ) ;
 
 -- Table: UserPass
@@ -95,10 +94,10 @@ ALTER TABLE Recipes ADD CONSTRAINT Recipes_Ingredients
     FOREIGN KEY (ingredient_id)
     REFERENCES Ingredients (ingredient_id);
 
--- Reference: Recipes_Products (table: Products)
-ALTER TABLE Products ADD CONSTRAINT Recipes_Products
+-- Reference: Recipes_Products (table: Recipes)
+ALTER TABLE Recipes ADD CONSTRAINT Recipes_Products
     FOREIGN KEY (recipe_id)
-    REFERENCES Recipes (recipe_id);
+    REFERENCES Products (recipe_id);
 
 -- Reference: UserPass_UsersReferral (table: UsersReferral)
 ALTER TABLE UsersReferral ADD CONSTRAINT UserPass_UsersReferral
