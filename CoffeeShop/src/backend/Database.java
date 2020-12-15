@@ -302,5 +302,31 @@ public class Database {
 			}
 		}
 		System.out.println("Order Items Added Successfully");
+		conn.close();
+	}
+	
+	public void checkStock(Product[] p, int[] q) throws SQLException {
+		Connection conn = getConnection();
+		for (int i = 0; i < p.length; i++) {
+			if (p[i] != null) {
+				try {
+					conn.setAutoCommit(false);
+					String check = ("{call checkProductInStock (?, ?)}");
+					CallableStatement checkProduct = conn.prepareCall(check);
+					checkProduct.setString(1, p[i].getID());
+					checkProduct.setInt(2, q[i]);
+					checkProduct.executeUpdate();
+					conn.commit();
+					checkProduct.close();
+				}
+				catch(SQLException e) {
+					System.out.println("We do not have enough stock to make " + q[i] + " " + p[i].getName() + "s.");
+					System.out.println("We have removed them from your order.");
+					App.getCart().removeProduct(i);
+					conn.rollback();
+				}
+			}
+		}
+		conn.close();
 	}
 }

@@ -116,6 +116,7 @@ public class Cart {
 			}
 			c = coffeeShop.updateAddress(c, newAddress);
 		}
+		coffeeShop.checkStock(products, quantity);
 		System.out.println("Would you like to check out now or cancel your order? 1. Check Out 2. Close");
 		choice = 0;
 		while (choice != 1 && choice != 2) {
@@ -142,5 +143,10 @@ public class Cart {
 			System.out.println("Sorry to see you go, have a wonderful day!");
 		}
 		reader.close();
+	}
+	
+	public void removeProduct(int i) {
+		products[i] = null;
+		quantity[i] = 0;
 	}
 }

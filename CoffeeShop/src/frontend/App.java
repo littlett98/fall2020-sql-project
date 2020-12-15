@@ -234,6 +234,9 @@ public class App {
 		return c;
 	}
 	
+	public static Cart getCart() {
+		return cart;
+	}
 	public static String stringSplitter(String word) {
 		String[] firstWord = word.split(" ");
 		input.nextLine();
