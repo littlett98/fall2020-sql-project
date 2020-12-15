@@ -114,7 +114,7 @@ public class App {
 		}
 		if (selection == 1) {
 			System.out.println("What is the email of the client who referred you?");
-			String refer_id = coffeeShop.getCustIDByEmail(input.next());
+			String refer_id = coffeeShop.getCustIDByUsername(input.next());
 			c = new Customer(username, address, phone, email, refer_id);
 			try {
 				userCreation.newUser(username, password);

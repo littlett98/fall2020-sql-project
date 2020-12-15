@@ -2,11 +2,11 @@
 CREATE TABLE Customers (
     customer_id varchar2(10)  NOT NULL,
     username varchar2(15)  NOT NULL,
-    password RAW(255) NOT NULL,
     address varchar2(255)  NOT NULL,
     phone varchar2(10)  NULL,
     email varchar2(255)  NOT NULL,
     referral_id varchar2(10)  NULL,
+    CONSTRAINT Customers_ak_1 UNIQUE (email),
     CONSTRAINT Customers_pk PRIMARY KEY (customer_id)
 ) ;
 
@@ -27,7 +27,7 @@ CREATE TABLE Order_Items (
     quantity number(3)  NOT NULL
 ) ;
 
--- Table: Orders
+-- Table: Orders_Coffee
 CREATE TABLE Orders_Coffee (
     order_id varchar2(10)  NOT NULL,
     customer_id varchar2(10)  NOT NULL,
@@ -57,22 +57,29 @@ CREATE TABLE Recipes (
 -- Table: UserPass
 CREATE TABLE UserPass (
     username varchar2(15)  NOT NULL,
-    salt varchar2(32) NOT NULL,
-    hash RAW(255) NOT NULL,
+    salt varchar2(32)  NOT NULL,
+    hash raw(255)  NOT NULL,
     CONSTRAINT UserPass_pk PRIMARY KEY (username)
-);
+) ;
+
+-- Table: UsersReferral
+CREATE TABLE UsersReferral (
+    username varchar2(10)  NOT NULL,
+    referral_credits number(1)  NOT NULL,
+    referral_credits_remaining number(1)  NOT NULL
+) ;
 
 -- foreign keys
 -- Reference: Customers_Customers (table: Customers)
 ALTER TABLE Customers ADD CONSTRAINT Customers_Customers
     FOREIGN KEY (referral_id)
     REFERENCES Customers (customer_id);
-    
 
+-- Reference: Customers_UserPass (table: Customers)
 ALTER TABLE Customers ADD CONSTRAINT Customers_UserPass
     FOREIGN KEY (username)
     REFERENCES UserPass (username);
-    
+
 -- Reference: Order_Items_Orders (table: Order_Items)
 ALTER TABLE Order_Items ADD CONSTRAINT Order_Items_Orders
     FOREIGN KEY (order_id)
@@ -83,11 +90,6 @@ ALTER TABLE Order_Items ADD CONSTRAINT Order_Items_Products
     FOREIGN KEY (product_id)
     REFERENCES Products (product_id);
 
--- Reference: Orders_Customers (table: Orders)
-ALTER TABLE Orders_coffee ADD CONSTRAINT Orders_Customers
-    FOREIGN KEY (customer_id)
-    REFERENCES Customers (customer_id);
-
 -- Reference: Recipes_Ingredients (table: Recipes)
 ALTER TABLE Recipes ADD CONSTRAINT Recipes_Ingredients
     FOREIGN KEY (ingredient_id)
@@ -97,37 +99,8 @@ ALTER TABLE Recipes ADD CONSTRAINT Recipes_Ingredients
 ALTER TABLE Products ADD CONSTRAINT Recipes_Products
     FOREIGN KEY (recipe_id)
     REFERENCES Recipes (recipe_id);
-    
-/* Drops
--- foreign keys
-ALTER TABLE Customers
-    DROP CONSTRAINT Customers_Customers;
 
-ALTER TABLE Order_Items
-    DROP CONSTRAINT Order_Items_Orders;
-
-ALTER TABLE Order_Items
-    DROP CONSTRAINT Order_Items_Products;
-
-ALTER TABLE Orders
-    DROP CONSTRAINT Orders_Customers;
-
-ALTER TABLE Recipes
-    DROP CONSTRAINT Recipes_Ingredients;
-
-ALTER TABLE Products
-    DROP CONSTRAINT Recipes_Products;
-
--- tables
-DROP TABLE Customers;
-
-DROP TABLE Ingredients;
-
-DROP TABLE Order_Items;
-
-DROP TABLE Orders;
-
-DROP TABLE Products;
-
-DROP TABLE Recipes;
-*/
+-- Reference: UserPass_UsersReferral (table: UsersReferral)
+ALTER TABLE UsersReferral ADD CONSTRAINT UserPass_UsersReferral
+    FOREIGN KEY (username)
+    REFERENCES UserPass (username);

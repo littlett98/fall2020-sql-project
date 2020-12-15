@@ -1,18 +1,14 @@
-insert into customers values('C001', 'trevor', 'password', 'home', '1234567890', 'email@gmail.com', null);
-
-select count(customer_id) from customers;
-
 insert into ingredients values ('I0001', 'Sugar', 1.99, 2000, 'Gram');
 insert into ingredients values ('I0002', 'Milk', 1.99, 5000, 'Millilitre');
 insert into ingredients values ('I0003', 'Cream', 2.29, 5000, 'Millilitre');
 insert into ingredients values ('I0004', 'Brown Sugar', 2.49, 2000, 'Gram');
-insert into ingredients values ('I0005', 'Coffee Beans', 14.99, 10000, 'Gram');
-insert into ingredients values ('I0006', 'Instant Coffee', 10.99, 10000, 'Gram');
-insert into ingredients values ('I0007', 'Prepackaged Blueberry Muffin', 1.99, 10, 'Muffin');
+insert into ingredients values ('I0005', 'Coffee Beans', 14.99, 9000, 'Gram');
+insert into ingredients values ('I0006', 'Instant Coffee', 10.99, 9000, 'Gram');
+insert into ingredients values ('I0007', 'Prepackaged Blueberry Muffin', 1.99, 100, 'Muffin');
 insert into ingredients values ('I0008', 'Bread', 4.99, 100, 'Slice');
 insert into ingredients values ('I0009', 'Eggs', 7.99, 96, 'Egg');
 insert into ingredients values ('I0010', 'Cheddar Cheese', 9.99, 110, 'Slice');
-insert into ingredients values ('I0011', 'Butter', 9.99, 10000, 'Gram');
+insert into ingredients values ('I0011', 'Butter', 9.99, 9000, 'Gram');
 insert into ingredients values ('I0012', 'Vanilla Extract', 19.99, 1000, 'Millilitre');
 
 -- Latte

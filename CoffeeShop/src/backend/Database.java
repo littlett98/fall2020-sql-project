@@ -17,7 +17,7 @@ public class Database {
 		return null;
 	}
 
-	public String getCustIDByEmail(String email) {
+	public String getCustIDByUsername(String email) {
 		//for now
 		return "test";
 	}
