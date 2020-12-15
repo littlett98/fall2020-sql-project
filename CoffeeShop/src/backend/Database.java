@@ -1,6 +1,10 @@
 package backend;
 
 import java.sql.*;
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
+import frontend.App;
 import tables.*;
 
 public class Database {
@@ -17,9 +21,49 @@ public class Database {
 		return null;
 	}
 
-	public String getCustIDByUsername(String email) {
-		//for now
-		return "test";
+	public String getCustIDByUsername(String username) throws SQLException {
+		Connection conn = getConnection();
+		String cust_id = null;
+		boolean invalid = true;
+		while (invalid) {
+			try {
+				conn.setAutoCommit(false);
+				String findCust = ("SELECT CUSTOMER_ID FROM CUSTOMERS WHERE USERNAME LIKE ?");
+				PreparedStatement findCuststmt = conn.prepareStatement(findCust);
+				findCuststmt.setString(1, username);
+				ResultSet rs = findCuststmt.executeQuery();
+				while(rs.next()) {
+					cust_id = rs.getString(1);
+				}
+				conn.commit();
+				findCuststmt.close();
+				invalid = false;
+			}
+			catch(SQLException e){
+				System.out.println("Username does not exist, would you like to try another username? 1. Yes 2. No");
+				Scanner reader = new Scanner(System.in);
+				int retry = 0;
+				while (retry != 1 && retry != 2) {
+					try {
+						retry = reader.nextInt();
+						if (retry == 1) {
+							System.out.println("What is the username of the client who referred you?");
+							username = App.stringSplitter(reader.next());
+						}
+					}
+					catch (InputMismatchException ex) {
+						reader.nextLine();
+						System.out.println("Invalid input, please input a number");
+						continue;
+					}
+				}
+				conn.rollback();
+			}
+			finally {
+				conn.close();
+			}
+		}
+		return cust_id;
 	}
 	
 	/*public Customer getCustomer(String username) {

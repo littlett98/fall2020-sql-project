@@ -60,7 +60,7 @@ public class App {
 		}
 	}
 	
-	public static void register() {
+	public static void register() throws SQLException {
 		boolean invalid = true;
 		System.out.println("You are on the registration page");
 		DatabaseSecurity userCreation = new DatabaseSecurity();
@@ -113,7 +113,7 @@ public class App {
 			}
 		}
 		if (selection == 1) {
-			System.out.println("What is the email of the client who referred you?");
+			System.out.println("What is the username of the client who referred you?");
 			String refer_id = coffeeShop.getCustIDByUsername(input.next());
 			c = new Customer(username, address, phone, email, refer_id);
 			try {
