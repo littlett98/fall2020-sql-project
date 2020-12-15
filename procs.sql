@@ -93,28 +93,69 @@ BEGIN
     calcTotalSpent;
 END;
 
-CREATE OR REPLACE PROCEDURE updateIngredientStock(vIngredientID IN VARCHAR2)
+CREATE OR REPLACE PROCEDURE updateIngredientStock(vIngredientID IN VARCHAR2, vRemove IN NUMBER)
 AS
-BEGIN
-  ;
-END;
-
-/*DECLARE
-BEGIN
-  checkProductInStock('P0001', 100);
-END;
-SELECT name, STOCK FROM INGREDIENTS
-    JOIN RECIPES USING (INGREDIENT_ID)
-    JOIN PRODUCTS USING (RECIPE_ID)
-    WHERE PRODUCTS.PRODUCT_ID LIKE 'P001';
-    
-DECLARE
-  total number;
-BEGIN
-dbms_output.put_line(CALCULATECOST('Latte', 2, total));
-END;
+  vOldStock INGREDIENTS.STOCK%TYPE;
+  vNewStock INGREDIENTS.STOCK%TYPE;
 
 BEGIN
-dbms_output.put_line('hello');
-END;*/
+  SELECT STOCK INTO VOLDSTOCK
+  FROM INGREDIENTS
+  WHERE INGREDIENT_ID LIKE VINGREDIENTID;
+  
+  vNewStock := vOldStock - vRemove;
+  UPDATE INGREDIENTS SET STOCK = VNEWSTOCK
+  WHERE INGREDIENT_ID LIKE VINGREDIENTID;
+END;
 
+CREATE OR REPLACE TRIGGER addToUserRef
+  AFTER INSERT ON CUSTOMERS
+  FOR EACH ROW
+BEGIN
+  INSERT INTO USERSREFERRAL VALUES(:NEW.username,0,0);
+END;
+
+CREATE OR REPLACE PROCEDURE addNewUserRef(vRefID IN CUSTOMERS.REFERRAL_ID%TYPE)
+AS
+  vUsername CUSTOMERS.USERNAME%TYPE;
+  vOldCredits USERSREFERRAL.REFERRAL_CREDITS%TYPE;
+  vNewCredits USERSREFERRAL.REFERRAL_CREDITS%TYPE;
+  vOldCreditsRemaining USERSREFERRAL.REFERRAL_CREDITS_REMAINING%TYPE;
+  vNewCreditsRemaining USERSREFERRAL.REFERRAL_CREDITS_REMAINING%TYPE;
+BEGIN
+  SELECT username into vUsername 
+  from customers
+  where customer_id LIKE vRefID;
+  
+  SELECT referral_credits, referral_credits_remaining INTO vOldCredits, vOldCreditsRemaining
+  FROM USERSREFERRAL
+  WHERE username LIKE vUsername;
+  
+  IF (vOldCredits < 3) THEN
+    vNewCredits := vOldCredits + 1;
+    vNewCreditsRemaining := vOldCreditsRemaining + 1;
+    UPDATE USERSREFERRAL SET REFERRAL_CREDITS = vNewCredits, REFERRAL_CREDITS_REMAINING = vNewCreditsRemaining
+    WHERE USERNAME LIKE vUsername;
+  END IF;
+END;
+
+CREATE OR REPLACE PROCEDURE updateCreditsRemaining(vCustID IN CUSTOMERS.CUSTOMER_ID%TYPE)
+AS
+  vUsername CUSTOMERS.USERNAME%TYPE;
+  vOldCreditsRemaining USERSREFERRAL.REFERRAL_CREDITS_REMAINING%TYPE;
+  vNewCreditsRemaining USERSREFERRAL.REFERRAL_CREDITS_REMAINING%TYPE;
+BEGIN
+  SELECT username into vUsername 
+  from customers
+  where customer_id LIKE vCustID;
+
+  SELECT referral_credits_remaining INTO vOldCreditsRemaining
+  FROM USERSREFERRAL
+  WHERE username LIKE vUsername;
+  
+  IF (vOldCreditsRemaining > 0) THEN
+    vNewCreditsRemaining := vOldCreditsRemaining - 1;
+    UPDATE USERSREFERRAL SET REFERRAL_CREDITS_REMAINING = vNewCreditsRemaining
+    WHERE USERNAME LIKE vUsername;
+  END IF;
+END;
