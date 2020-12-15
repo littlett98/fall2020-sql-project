@@ -3,6 +3,7 @@ package backend;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import frontend.App;
@@ -90,15 +91,47 @@ public class Cart {
 		Customer c = app.getCustomer();
 		System.out.println("Your current address is: " + c.getAddress());
 		System.out.println("Would you like to change your address? 1. Yes 2. No");
-		int choice = reader.nextInt();
+		int choice = 0;
+		while (choice != 1 && choice != 2) {
+			try {
+				choice = reader.nextInt();
+			}
+			catch (InputMismatchException e) {
+				reader.nextLine();
+				System.out.println("Invalid selection, please input: 1. Yes 2. No");
+				continue;
+			}
+			if (choice != 1 && choice != 2) {
+				System.out.println("Please input either 1. Yes or 2. No");
+				continue;
+			}
+		}
 		if (choice == 1) {
 			System.out.println("What is your new address?");
 			reader.nextLine();
 			String newAddress = reader.nextLine();
+			while (newAddress.length() < 3) {
+				System.out.println("Address must be longer than 3 characters");
+				newAddress = reader.nextLine();
+			}
 			c = coffeeShop.updateAddress(c, newAddress);
 		}
 		System.out.println("Would you like to check out now or cancel your order? 1. Check Out 2. Close");
-		choice = reader.nextInt();
+		choice = 0;
+		while (choice != 1 && choice != 2) {
+			try {
+				choice = reader.nextInt();
+			}
+			catch (InputMismatchException e) {
+				reader.nextLine();
+				System.out.println("Invalid selection, please input: 1. Check Out 2. Close");
+				continue;
+			}
+			if (choice != 1 && choice != 2) {
+				System.out.println("Please input either 1. Check Out or 2. Close");
+				continue;
+			}
+		}
 		if (choice == 1) {
 			String orderID = coffeeShop.generateOrderID();
 			coffeeShop.newOrder(orderID, c);

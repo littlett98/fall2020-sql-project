@@ -15,6 +15,7 @@ public class App {
 	private static Customer c;
 	private static Database coffeeShop = new Database();
 	private static Cart cart = new Cart();
+	private static Product[] allProducts;
 	
 	public static void main(String[] args) throws SQLException {
 		input = new Scanner(new FilterInputStream(System.in) {
@@ -48,14 +49,14 @@ public class App {
 				}
 			}
 			catch (InputMismatchException e) {
-				String bad_input = input.next();
+				input.next();
 				System.out.println("Please input a different selection. Please note it should be a number.");
 				continue;
 			}
 		}
 		if (loggedIn) {
-			input.close();
 			viewProductsLoggedIn();
+			input.close();
 		}
 	}
 	
@@ -77,24 +78,46 @@ public class App {
 				System.out.println("Invalid inputs, please retry. Make sure to never uses spaces in the username or password!");
 			}
 		}
-		try {
-			userCreation.newUser(username, password);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
 		System.out.println("What is your address?");
 		String address = input.nextLine();
+		while (address.length() < 3) {
+			System.out.println("Address must be longer than 3 characters");
+			address = input.nextLine();
+		}
 		System.out.println("What is your phone number?");
-		String phone = input.next();
+		String phone = stringSplitter(input.next());
+		while (phone.length() != 10) {
+			System.out.println("Phone number must be exactly 10 digits");
+			phone = input.nextLine();
+		}
 		System.out.println("What is your email address?");
-		String email = input.next();
+		String email = stringSplitter(input.next());
+		while (email.indexOf("@") == -1 && email.indexOf(".") == -1) {
+			System.out.println("Please input a valid email");
+			email = input.nextLine();
+		}
 		System.out.println("Have you been referred by anyone? 1. Yes 2. No");
-		int selection = input.nextInt();
+		int selection = 0;
+		while (selection != 1 && selection != 2) {
+			try {
+				selection = input.nextInt();
+			}
+			catch (InputMismatchException e) {
+				input.nextLine();
+				System.out.println("Invalid selection, please input: 1. Yes 2. No");
+				continue;
+			}
+			if (selection != 1 && selection != 2) {
+				System.out.println("Please input either 1. Yes or 2. No");
+				continue;
+			}
+		}
 		if (selection == 1) {
 			System.out.println("What is the email of the client who referred you?");
 			String refer_id = coffeeShop.getCustIDByEmail(input.next());
 			c = new Customer(username, address, phone, email, refer_id);
 			try {
+				userCreation.newUser(username, password);
 				coffeeShop.addCustomer(c);
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -103,13 +126,11 @@ public class App {
 		else if (selection == 2) {
 			c = new Customer(username, address, phone, email, null);
 			try {
+				userCreation.newUser(username, password);
 				coffeeShop.addCustomer(c);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-		}
-		else {
-			System.out.println("Invalid input");
 		}
 	}
 	
@@ -125,9 +146,11 @@ public class App {
 	
 	public static void viewProducts() throws SQLException {
 		System.out.println("These are the current products we offer:");
-		Product[] products = coffeeShop.getAllProducts();
-		for (int i = 0; i < products.length; i++) {
-			System.out.println((i+1) + ". " + products[i].getName() + " - $" + products[i].getRetailPrice());
+		if (allProducts == null) {
+			allProducts = coffeeShop.getAllProducts();
+		}
+		for (int i = 0; i < allProducts.length; i++) {
+			System.out.println((i+1) + ". " + allProducts[i].getName() + " - $" + allProducts[i].getRetailPrice());
 		}
 	}
 	
@@ -143,20 +166,54 @@ public class App {
 			    }
 			});
 			viewProducts();
-			System.out.println("Which products would you like to add to your cart?");
-			String selection = reader.nextLine();
-			String[] allSelections = selection.split(" ");
-			int[] allSelectionsNum = new int[allSelections.length];
-			int[] productQuantity = new int[allSelections.length];
-			for (int i = 0; i < allSelections.length; i++) {
-				allSelectionsNum[i] = Integer.parseInt(allSelections[i]);
-				System.out.println("How many " + coffeeShop.getProduct(allSelectionsNum[i]-1).getName() + "s would you like?");
-				productQuantity[i] = reader.nextInt();
+			System.out.println("Which product would you like to add to your cart?");
+			int selection = 0;
+			while (selection < 1 || selection > allProducts.length) {
+				try {
+					selection = reader.nextInt();
+					if (selection < 1 || selection > allProducts.length) {
+						System.out.println("Invalid input, please make sure you type a number associated to a product");
+					}
+				}
+				catch (InputMismatchException e) {
+					reader.nextLine();
+					System.out.println("Invalid input, please input a number");
+					continue;
+				}
 			}
-			addToCart(allSelectionsNum, productQuantity);
+			System.out.println("How many " + allProducts[selection-1].getName() + "s would you like?");
+			int quantity = 0;
+			while (quantity < 1) {
+				try {
+					quantity = reader.nextInt();
+					if (quantity < 1) {
+						System.out.println("Invalid Input, please make sure your quanitity is higher than 0");
+					}
+				}
+				catch (InputMismatchException e) {
+					reader.nextLine();
+					System.out.println("Not a number, please input the quantity of " + allProducts[selection-1].getName() + "s you want");
+					continue;
+				}
+			}
+			addToCart(selection, quantity);
 			cart.viewCartWithTotal();
+			
 			System.out.println("What would you like to do? 1. Continue shopping 2. Check Out");
-			int next = reader.nextInt();
+			int next = 0;
+			while (next != 1 && next != 2) {
+				try {
+					next = reader.nextInt();
+					if (next != 1 && next != 2) {
+						System.out.println("Invalid input, Please try again. 1. Continue shopping 2. Check Out");
+					}
+				}
+				catch (InputMismatchException e) {
+					reader.nextLine();
+					System.out.println("Please input a different selection. Please note it should be a number.");
+					continue;
+				}
+			}
 			reader.close();
 			if (next == 1) {
 				continue;
@@ -164,16 +221,13 @@ public class App {
 			else if (next == 2) {
 				shopping = false;
 			}
+			cart.checkout();
 		}
-		cart.checkout();
 	}
 	
-	public static void addToCart(int[] allSelections, int[] productQuantity) throws SQLException {
-		Product[] allProducts = coffeeShop.getAllProducts();
-		for (int i = 0; i < allSelections.length; i++) {
-			// minus 1 because the product selections start at 1
-			cart.addProduct(allProducts[allSelections[i]-1], productQuantity[i]);
-		}
+	
+	public static void addToCart(int selection, int quantity) throws SQLException {
+		cart.addProduct(allProducts[selection - 1], quantity);
 	}
 	
 	public Customer getCustomer() {

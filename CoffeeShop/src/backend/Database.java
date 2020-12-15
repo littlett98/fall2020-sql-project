@@ -242,7 +242,6 @@ public class Database {
 		for (int i = 0; i < products.length; i++) {
 			if (products[i] != null) {
 				try {
-					System.out.println(i);
 					conn.setAutoCommit(false);
 					String newOrder = ("{call ADDORDERITEM (?, ?, ?)}");
 					CallableStatement insertOrder = conn.prepareCall(newOrder);
