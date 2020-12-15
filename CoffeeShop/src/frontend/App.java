@@ -92,7 +92,7 @@ public class App {
 		}
 		System.out.println("What is your email address?");
 		String email = stringSplitter(input.next());
-		while (email.indexOf("@") == -1 && email.indexOf(".") == -1) {
+		while (email.indexOf("@") == -1 || email.indexOf(".") == -1) {
 			System.out.println("Please input a valid email");
 			email = input.nextLine();
 		}
