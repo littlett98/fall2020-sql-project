@@ -27,11 +27,25 @@ public class Cart {
 		if (productArrayFull()) {
 			increaseArraySize();
 		}
+		boolean alreadyAdded = false;
+		// checks if the product is already in your cart and adds quantity to it if they are the same
 		for (int i = 0; i < products.length; i++) {
-			if (products[i] == null) {
-				products[i] = p;
-				quantity[i] = q;
-				break;
+			if (products[i] != null) {
+				if (products[i].getName().equals(p.getName())) {
+					quantity[i] += q;
+					alreadyAdded = true;
+					break;
+				}
+			}
+		}
+		// adds new product to cart
+		if (!alreadyAdded) {
+			for (int i = 0; i < products.length; i++) {
+				if (products[i] == null) {
+					products[i] = p;
+					quantity[i] = q;
+					break;
+				}
 			}
 		}
 	}
@@ -57,9 +71,9 @@ public class Cart {
 	}
 	
 	public void viewCart() {
+		System.out.println("The Products you've selected so far: ");
 		for (int i = 0; i < products.length; i++) {
 			if (products[i] != null ) {
-				System.out.println("The Products you've selected so far: ");
 				System.out.print(quantity[i] + " ");
 				System.out.println(products[i].getName() + "s");
 			}

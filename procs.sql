@@ -61,9 +61,9 @@ AS
   vIngredientID INGREDIENTS.INGREDIENT_ID%TYPE;
   vIngredientQTY RECIPES.QUANTITY%TYPE;
   no_more_stock EXCEPTION;
-  PRAGMA EXCEPTION_INIT (no_more_stock, -21000);
+  PRAGMA EXCEPTION_INIT (no_more_stock, -20001);
   not_enough_stock EXCEPTION;
-  PRAGMA EXCEPTION_INIT (not_enough_stock, -22000);
+  PRAGMA EXCEPTION_INIT (not_enough_stock, -20002);
   
   CURSOR getIngredients IS
     SELECT STOCK, NAME, INGREDIENT_ID FROM INGREDIENTS
@@ -75,30 +75,23 @@ BEGIN
     LOOP
       BEGIN
         FETCH getIngredients INTO vStock, vName, vIngredientID;
-        dbms_output.put_line(vStock);
-        dbms_output.put_line(vName);
-        dbms_output.put_line(vIngredientID);
         IF (vStock <= 0) THEN
-          raise_application_error(-21000,'No more in stock');
+          raise_application_error(-20001,'No more in stock');
         ELSE
           SELECT QUANTITY INTO vIngredientQTY FROM RECIPES
           JOIN PRODUCTS USING (RECIPE_ID)
           WHERE PRODUCTS.PRODUCT_ID LIKE vProduct# AND RECIPES.INGREDIENT_ID LIKE vIngredientID;
           IF (vIngredientQTY * vQuantity > vStock) THEN
-            raise_application_error(-22000,'Not Enough Ingredients in stock to make the quantity you requested');
+            raise_application_error(-20002,'Not Enough Ingredients in stock to make the quantity you requested');
           END IF;
         END IF;
         EXIT WHEN getIngredients%notfound;
       END;
     END LOOP;
   CLOSE getIngredients;
-/*EXCEPTION
-  WHEN no_more_stock THEN
-    dbms_output.put_line('No More Stock of ' || vName);
-  WHEN not_enough_stock THEN
-    dbms_output.put_line('Not enough Stock of ' || vName);*/
 END;
 
+--This trigger updates the total amount of ingredients after an order is made
 CREATE OR REPLACE TRIGGER updateIngredientTotal
     AFTER INSERT ON ORDER_ITEMS
     FOR EACH ROW
@@ -106,6 +99,7 @@ BEGIN
     updateIngredientStock2(:NEW.PRODUCT_ID, :NEW.QUANTITY);
 END;
 
+-- This Procedure Updates the amount of an ingredient the store has in stock
 CREATE OR REPLACE PROCEDURE updateIngredientStock2(vProdID IN VARCHAR2, vQTYofProduct IN NUMBER)
 AS
   vOldStock INGREDIENTS.STOCK%TYPE;
@@ -123,34 +117,21 @@ BEGIN
     LOOP
       BEGIN
         FETCH ingredientsInRecipe INTO vIngredID, vQTYinRecipe;
-        
-        SELECT STOCK INTO VOLDSTOCK
-        FROM INGREDIENTS
-        WHERE INGREDIENT_ID LIKE VINGREDID;
-  
-        --vNewStock := TRUNC(vOldStock - 1)/*(vQTYinRecipe * vQTYofProduct)*/;
-        UPDATE INGREDIENTS SET STOCK = 0
-        WHERE INGREDIENT_ID LIKE VINGREDID;
+          
+          SELECT STOCK INTO VOLDSTOCK
+          FROM INGREDIENTS
+          WHERE INGREDIENT_ID LIKE VINGREDID;
+          
+        vNewStock := vOldStock - (vQTYinRecipe * vQTYofProduct);
+        UPDATE INGREDIENTS SET STOCK = vNewStock
+        WHERE INGREDIENT_ID LIKE vIngredID;
+        EXIT WHEN ingredientsInRecipe%notfound;
       END;
     END LOOP;
   CLOSE ingredientsInRecipe;
 END;
 
-CREATE OR REPLACE PROCEDURE updateIngredientStock(vIngredientID IN VARCHAR2, vRemove IN NUMBER)
-AS
-  vOldStock INGREDIENTS.STOCK%TYPE;
-  vNewStock INGREDIENTS.STOCK%TYPE;
-
-BEGIN
-  SELECT STOCK INTO VOLDSTOCK
-  FROM INGREDIENTS
-  WHERE INGREDIENT_ID LIKE VINGREDIENTID;
-  
-  vNewStock := vOldStock - vRemove;
-  UPDATE INGREDIENTS SET STOCK = VNEWSTOCK
-  WHERE INGREDIENT_ID LIKE VINGREDIENTID;
-END;
-
+-- adds a row in the usersreferral tble whenever a new customer is added to the database
 CREATE OR REPLACE TRIGGER addToUserRef
   AFTER INSERT ON CUSTOMERS
   FOR EACH ROW
@@ -158,6 +139,7 @@ BEGIN
   INSERT INTO USERSREFERRAL VALUES(:NEW.username,0,0);
 END;
 
+-- This procedure adds a credit to a user whenever they referred someone to the coffee shop
 CREATE OR REPLACE PROCEDURE addNewUserRef(vRefID IN CUSTOMERS.REFERRAL_ID%TYPE)
 AS
   vUsername CUSTOMERS.USERNAME%TYPE;
@@ -182,6 +164,7 @@ BEGIN
   END IF;
 END;
 
+-- This procedure removes a credit whenever the user makes an order ($5 credit off their order)
 CREATE OR REPLACE PROCEDURE updateCreditsRemaining(vCustID IN CUSTOMERS.CUSTOMER_ID%TYPE)
 AS
   vUsername CUSTOMERS.USERNAME%TYPE;
@@ -202,5 +185,3 @@ BEGIN
     WHERE USERNAME LIKE vUsername;
   END IF;
 END;
-
-INSERT INTO ORDER_ITEMS VALUES('O0001', 'P0004', 2);
