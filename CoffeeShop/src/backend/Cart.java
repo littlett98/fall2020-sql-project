@@ -100,9 +100,15 @@ public class Cart {
 			}
 		}
 		double total = coffeeShop.getCartTotalCost(products, quantity);
-		System.out.println("The total cost for your order is: $" + total);
-		App app = new App();
-		Customer c = app.getCustomer();
+		boolean discount = coffeeShop.getDiscount(App.getCustomer().getUsername());
+		if (discount == false) {
+			System.out.println("The total cost for your order is: $" + total);
+		}
+		else {
+			System.out.println("A $5 discount was applied to your order since you referred another customer!");
+			System.out.println("The total cost for your order is: $" + (total - 5));
+		}
+		Customer c = App.getCustomer();
 		System.out.println("Your current address is: " + c.getAddress());
 		System.out.println("Would you like to change your address? 1. Yes 2. No");
 		int choice = 0;
@@ -149,7 +155,7 @@ public class Cart {
 		}
 		if (choice == 1) {
 			String orderID = coffeeShop.generateOrderID();
-			coffeeShop.newOrder(orderID, c);
+			coffeeShop.newOrder(orderID, c, discount);
 			coffeeShop.addOrderItems(orderID, products, quantity);
 			System.out.println("Thank you for your business! Have a great day!");
 		}

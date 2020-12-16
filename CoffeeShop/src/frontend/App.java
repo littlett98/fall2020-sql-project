@@ -11,7 +11,7 @@ import tables.*;
 
 public class App {
 	
-	private static Scanner input;
+	public static Scanner input;
 	private static Customer c;
 	private static Database coffeeShop = new Database();
 	private static Cart cart = new Cart();
@@ -230,7 +230,7 @@ public class App {
 		cart.addProduct(allProducts[selection - 1], quantity);
 	}
 	
-	public Customer getCustomer() {
+	public static Customer getCustomer() {
 		return c;
 	}
 	

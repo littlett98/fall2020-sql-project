@@ -2,7 +2,6 @@ package backend;
 
 import java.sql.*;
 import java.util.InputMismatchException;
-import java.util.Scanner;
 
 import frontend.App;
 import tables.*;
@@ -41,18 +40,17 @@ public class Database {
 			}
 			catch(SQLException e){
 				System.out.println("Username does not exist, would you like to try another username? 1. Yes 2. No");
-				Scanner reader = new Scanner(System.in);
 				int retry = 0;
 				while (retry != 1 && retry != 2) {
 					try {
-						retry = reader.nextInt();
+						retry = App.input.nextInt();
 						if (retry == 1) {
 							System.out.println("What is the username of the client who referred you?");
-							username = App.stringSplitter(reader.next());
+							username = App.stringSplitter(App.input.next());
 						}
 					}
 					catch (InputMismatchException ex) {
-						reader.nextLine();
+						App.input.nextLine();
 						System.out.println("Invalid input, please input a number");
 						continue;
 					}
@@ -224,7 +222,7 @@ public class Database {
 		return c;
 	}
 	
-	public void newOrder(String orderID, Customer c) throws SQLException {
+	public void newOrder(String orderID, Customer c, boolean discount) throws SQLException {
 		Connection conn = getConnection();
 		try {
 			conn.setAutoCommit(false);
@@ -237,6 +235,9 @@ public class Database {
 			conn.commit();
 			System.out.println("Order Completed Successfully");
 			insertOrder.close();
+			if (discount) {
+				applyDiscount(c.getID());
+			}
 		}
 		catch(SQLException e) {
 			conn.rollback();
@@ -246,6 +247,25 @@ public class Database {
 		}
 	}
 	
+	private void applyDiscount(String CustID) throws SQLException {
+		Connection conn = getConnection();
+		try {
+			conn.setAutoCommit(false);
+			String removeCredit = ("{call updateCreditsRemaining (?)}");
+			CallableStatement removeCreditstmt = conn.prepareCall(removeCredit);
+			removeCreditstmt.setString(1, CustID);
+			removeCreditstmt.executeUpdate();
+			conn.commit();
+			removeCreditstmt.close();
+		}
+		catch (SQLException e) {
+			conn.rollback();
+		}
+		finally {
+			conn.close();
+		}
+	}
+
 	public String generateOrderID() throws SQLException {
 		Connection conn = getConnection();
 		String count = "";
@@ -328,5 +348,30 @@ public class Database {
 			}
 		}
 		conn.close();
+	}
+
+	public boolean getDiscount(String username) throws SQLException {
+		Connection conn = getConnection();
+		try {
+			conn.setAutoCommit(false);
+			String check = ("SELECT REFERRAL_CREDITS_REMAINING FROM USERSREFERRAL WHERE USERNAME LIKE ?");
+			PreparedStatement checkRef = conn.prepareStatement(check);
+			checkRef.setString(1, username);
+			ResultSet rs = checkRef.executeQuery();
+			while(rs.next()) {
+				if (Integer.parseInt(rs.getString(1)) > 0) {
+					return true;
+				}
+			}
+			conn.commit();
+			checkRef.close();
+		}
+		catch(SQLException e) {
+			conn.rollback();
+		}
+		finally {
+			conn.close();
+		}
+		return false;
 	}
 }
